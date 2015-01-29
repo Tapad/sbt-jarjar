@@ -4,7 +4,7 @@ name := "sbt-jarjar"
 
 organization := "com.tapad"
 
-version := "1.0.0"
+version := "1.0.1"
 
 credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 
