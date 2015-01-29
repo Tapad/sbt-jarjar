@@ -46,7 +46,7 @@ object JarJarPlugin extends Plugin {
       val sourceJarFile = (outputPath in key).value
       val targetJarFile = new File(sourceJarFile.getAbsolutePath + "_COPYING_")
       log.info(s"Repackaging $sourceJarFile ...")
-      val command = s"java -jar $binary process $rulesFile $sourceJarFile $targetJarFile"
+      val command = s"java -Xmx2G -jar $binary process $rulesFile $sourceJarFile $targetJarFile"
       log.debug(s"Executing `$command`")
       command ! log
       targetJarFile.renameTo(sourceJarFile)
