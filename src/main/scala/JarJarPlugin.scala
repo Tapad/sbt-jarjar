@@ -20,6 +20,8 @@ object JarJarPlugin extends Plugin {
     lazy val rules = TaskKey[Seq[String]]("jarjar-rules")
 
     lazy val bin = TaskKey[File]("jarjar-bin")
+
+    lazy val jvmOptions = TaskKey[Seq[String]]("jarjar-jvm-opts")
   }
 
   import JarJarKeys._
@@ -34,7 +36,8 @@ object JarJarPlugin extends Plugin {
     libraryDependencies += "com.googlecode.jarjar" % "jarjar" % "1.3" % "provided",
     bin in jarjar <<= (fullClasspath in Compile) map { classpath =>
       classpath.map(_.data).find(_.getName == "jarjar-1.3.jar").get
-    }
+    },
+    jvmOptions in jarjar := Seq("-Xmx2g")
   )
 
   private def jarjarTask(key: TaskKey[Unit]): Def.Initialize[Task[Unit]] = Def.task {
@@ -46,9 +49,14 @@ object JarJarPlugin extends Plugin {
       val sourceJarFile = (outputPath in key).value
       val targetJarFile = new File(sourceJarFile.getAbsolutePath + "_COPYING_")
       log.info(s"Repackaging $sourceJarFile ...")
-      val command = s"java -Xmx2G -jar $binary process $rulesFile $sourceJarFile $targetJarFile"
-      log.debug(s"Executing `$command`")
-      command ! log
+      val options = ForkOptions(
+        runJVMOptions = (jvmOptions in key).value,
+        outputStrategy = Some(LoggedOutput(log))
+      )
+      val arguments = Seq(binary, "process", rulesFile, sourceJarFile, targetJarFile)
+      val process = new Fork("java", Some("-jar")).fork(options, arguments.map(_.toString))
+      val result = process.exitValue
+      log.debug(s"Process exited with status: $result")
       targetJarFile.renameTo(sourceJarFile)
       rulesFile.delete()
     } else {
