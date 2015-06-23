@@ -1,3 +1,6 @@
+# sbt-jarjar
+Repackage a given jar file using [Jar Jar Links]("https://code.google.com/p/jarjar/").
+
 ## Example integration with `sbt-assembly`
 
     jarName in assembly := "my-project.jar",
