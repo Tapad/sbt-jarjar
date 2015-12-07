@@ -1,3 +1,7 @@
+import sbtrelease._
+import ReleasePlugin._
+import ReleaseStateTransformations._
+
 sbtPlugin := true
 
 name := "sbt-jarjar"
@@ -8,17 +12,26 @@ version := "1.0.2"
 
 credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 
-val tapadNexusSnapshots = "Tapad Nexus Snapshots" at "http://nexus.tapad.com:8080/nexus/content/repositories/snapshots"
+val TapadNexusSnapshots = "Tapad Nexus Snapshots" at "http://nexus.tapad.com:8080/nexus/content/repositories/snapshots"
 
-val tapadNexusReleases = "Tapad Nexus Releases" at "http://nexus.tapad.com:8080/nexus/content/repositories/releases"
+val TapadNexusReleases = "Tapad Nexus Releases" at "http://nexus.tapad.com:8080/nexus/content/repositories/releases"
 
-publishTo <<= (version) { version: String =>
-  if (version.endsWith("SNAPSHOT") || version.endsWith("TAPAD"))
-    Some(tapadNexusSnapshots)
-  else
-    Some(tapadNexusReleases)
-}
+publishTo := { if (version.value.endsWith("SNAPSHOT")) Some(TapadNexusSnapshots) else Some(TapadNexusReleases) }
 
 publishMavenStyle := true
 
-scalaVersion := "2.10.4"
+releaseSettings
+
+ReleaseKeys.nextVersion := { (version: String) => Version(version).map(_.bumpBugfix.asSnapshot.string).getOrElse(versionFormatError) }
+
+ReleaseKeys.releaseProcess := Seq(
+  checkSnapshotDependencies,
+  inquireVersions,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  publishArtifacts,
+  setNextVersion,
+  commitNextVersion
+)
