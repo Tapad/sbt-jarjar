@@ -10,6 +10,8 @@ organization := "com.tapad"
 
 scalaVersion := "2.10.6"
 
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+
 publishTo := {
   val nexus = "https://oss.sonatype.org"
   if (isSnapshot.value)
@@ -45,6 +47,8 @@ pomExtra := (
   </developers>
 )
 
+useGpg := true
+
 releaseSettings
 
 ReleaseKeys.nextVersion := { (version: String) => Version(version).map(_.bumpBugfix.asSnapshot.string).getOrElse(versionFormatError) }
@@ -62,3 +66,9 @@ ReleaseKeys.releaseProcess := Seq(
   ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
   pushChanges
 )
+
+ScriptedPlugin.scriptedSettings
+
+scriptedLaunchOpts ++= Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
+
+scriptedBufferLog := false

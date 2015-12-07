@@ -1,0 +1,3 @@
+package myproblem
+
+class Foo

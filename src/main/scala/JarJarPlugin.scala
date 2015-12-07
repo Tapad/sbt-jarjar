@@ -19,7 +19,7 @@ object JarJarPlugin extends Plugin {
 
     lazy val rules = TaskKey[Seq[String]]("jarjar-rules")
 
-    lazy val bin = TaskKey[File]("jarjar-bin")
+    lazy val classpath = TaskKey[Seq[File]]("jarjar-classpath")
 
     lazy val jvmOptions = TaskKey[Seq[String]]("jarjar-jvm-opts")
   }
@@ -33,9 +33,15 @@ object JarJarPlugin extends Plugin {
     jarName in jarjar <<= (jarName in jarjar) or (defaultJarName in jarjar),
     outputPath in jarjar <<= (target in jarjar, jarName in jarjar) map { (t, s) => t / s },
     rules in jarjar := Seq.empty[String],
-    libraryDependencies += "com.googlecode.jarjar" % "jarjar" % "1.3" % "provided",
-    bin in jarjar <<= (fullClasspath in Compile) map { classpath =>
-      classpath.map(_.data).find(_.getName == "jarjar-1.3.jar").get
+    libraryDependencies ++= Seq(
+      "com.googlecode.jarjar" % "jarjar"        % "1.3" % "provided",
+      "org.ow2.asm"           % "asm"           % "5.1" % "provided",
+      "org.ow2.asm"           % "asm-commons"   % "5.1" % "provided"
+    ),
+    classpath in jarjar <<= (fullClasspath in Compile) map { classpath =>
+      classpath.map(_.data).filter { file =>
+        file.getName.contains("jarjar") || file.getName.contains("asm")
+      }
     },
     jvmOptions in jarjar := Seq("-Xmx2g")
   )
@@ -44,18 +50,23 @@ object JarJarPlugin extends Plugin {
     val log = (streams in key).value.log
     val ruleSeq = (rules in key).value
     if (ruleSeq.nonEmpty) {
-      val binary = (bin in key).value
       val rulesFile = createRulesFile(ruleSeq)
       val sourceJarFile = (outputPath in key).value
       val targetJarFile = new File(sourceJarFile.getAbsolutePath + "_COPYING_")
       log.info(s"Repackaging $sourceJarFile ...")
       val options = ForkOptions(
+        bootJars = (classpath in key).value,
         runJVMOptions = (jvmOptions in key).value,
         outputStrategy = Some(LoggedOutput(log))
       )
-      val arguments = Seq(binary, "process", rulesFile, sourceJarFile, targetJarFile)
-      val process = new Fork("java", Some("-jar")).fork(options, arguments.map(_.toString))
-      val result = process.exitValue
+      val arguments = Seq(
+        "com.tonicsystems.jarjar.Main",
+        "process",
+        rulesFile.getAbsolutePath,
+        sourceJarFile.getAbsolutePath,
+        targetJarFile.getAbsolutePath
+      )
+      val result = Fork.java(options, arguments)
       log.debug(s"Process exited with status: $result")
       targetJarFile.renameTo(sourceJarFile)
       rulesFile.delete()
