@@ -1,3 +1,3 @@
 target
 project/target
-project/credentials.sbt
+project/sonatype.sbt

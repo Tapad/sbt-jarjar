@@ -1,4 +1,3 @@
-import com.typesafe.sbt.SbtPgp
 import sbtrelease._
 import ReleasePlugin._
 import ReleaseStateTransformations._
@@ -10,8 +9,6 @@ name := "sbt-jarjar"
 organization := "com.tapad"
 
 scalaVersion := "2.10.6"
-
-useGpg := true
 
 publishTo := {
   val nexus = "https://oss.sonatype.org"
