@@ -1,10 +1,12 @@
 # sbt-jarjar
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.tapad/sbt-jarjar/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.tapad/sbt-jarjar)
+
 Repackage a given jar file using [Jar Jar Links]("https://code.google.com/p/jarjar/").
 
 Add the following declaration to `project/plugins.sbt`:
 
 ```
-addSbtPlugin("com.tapad" % "sbt-jarjar" % "1.0.2")
+addSbtPlugin("com.tapad" % "sbt-jarjar" % "1.0.3")
 ```
 
 ## Example integration with `sbt-assembly`
