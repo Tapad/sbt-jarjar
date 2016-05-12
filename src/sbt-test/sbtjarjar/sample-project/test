@@ -1,0 +1,4 @@
+> jarjar
+$ exists target/scala-2.10/my-project.jar
+# manually ensure subsequent run does not repackage archive
+> jarjar
