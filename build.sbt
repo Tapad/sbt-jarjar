@@ -1,6 +1,7 @@
 import sbtrelease._
 import ReleasePlugin._
 import ReleaseStateTransformations._
+import com.typesafe.sbt.pgp.PgpKeys
 
 sbtPlugin := true
 
@@ -47,7 +48,9 @@ pomExtra := (
   </developers>
 )
 
-useGpg := true
+PgpKeys.useGpg := true
+
+PgpKeys.gpgCommand := "/usr/local/bin/gpg2"
 
 releaseSettings
 
