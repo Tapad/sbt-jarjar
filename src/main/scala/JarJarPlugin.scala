@@ -1,6 +1,7 @@
 package sbtjarjar
 
 import java.io.{File, FileWriter}
+import java.nio.file.Files
 
 import sbt._
 import Keys._
@@ -71,7 +72,11 @@ object JarJarPlugin extends Plugin {
       targetJarFile.renameTo(sourceJarFile)
       rulesFile.delete()
     } else {
-      log.error("No rules defined for `jarjar` task. Aborting...")
+      log.warn("No rules defined for `jarjar` task. No repackaging necessary.")
+      val sourceJarFile = (outputPath in key).value
+      val targetJarFile = new File(sourceJarFile.getAbsolutePath + "_COPYING_")
+      Files.copy(sourceJarFile.toPath, targetJarFile.toPath)
+      targetJarFile.renameTo(sourceJarFile)
     }
   }
 
