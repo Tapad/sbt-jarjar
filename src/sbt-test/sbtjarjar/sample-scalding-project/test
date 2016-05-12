@@ -1,2 +1,9 @@
 > jarjar
 $ exists jobs/target/scala-2.10/herp-derp.jar
+
+# manually ensure subsequent run does not repackage archive
+> jarjar
+
+# after clearing our target directory, we must repackage the archive
+> clean
+> jarjar
