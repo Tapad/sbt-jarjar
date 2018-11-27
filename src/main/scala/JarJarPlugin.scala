@@ -30,9 +30,9 @@ object JarJarPlugin extends Plugin {
 
   import JarJarKeys._
 
-  private val JarJarVersion = "1.3"
+  private val JarJarVersion = "1.7.2"
 
-  private val AsmVersion = "5.1"
+  private val AsmVersion = "7.0"
 
   lazy val jarjarSettings: Seq[sbt.Def.Setting[_]] = Seq(
     jarjar := jarjarTask(jarjar).value,
@@ -42,7 +42,7 @@ object JarJarPlugin extends Plugin {
     outputPath in jarjar := (target in jarjar).value / (jarName in jarjar).value,
     rules in jarjar := Seq.empty[String],
     libraryDependencies ++= Seq(
-      "com.googlecode.jarjar" % "jarjar"        % JarJarVersion % "provided",
+      "org.pantsbuild"        % "jarjar"        % JarJarVersion % "provided",
       "org.ow2.asm"           % "asm"           % AsmVersion    % "provided",
       "org.ow2.asm"           % "asm-commons"   % AsmVersion    % "provided"
     ),
@@ -82,7 +82,7 @@ object JarJarPlugin extends Plugin {
             outputStrategy = Some(LoggedOutput(log))
           )
           val arguments = Seq(
-            "com.tonicsystems.jarjar.Main",
+            "org.pantsbuild.jarjar.Main",
             "process",
             rulesFile.getAbsolutePath,
             sourceJarFile.getAbsolutePath,
